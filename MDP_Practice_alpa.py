@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 # 필드, 0 = 이동 가능 구역, 1 = 에이전트 위치, 2 = 골 지점
 field = [[2, 0, 0, 0, 0, 0, 0, 0, 2],
@@ -11,37 +12,19 @@ field = [[2, 0, 0, 0, 0, 0, 0, 0, 2],
          [0, 0, 0, 0, 0, 0, 0, 0, 0],
          [2, 0, 0, 0, 0, 0, 0, 0, 2]]
 
-# 보상
-rew1 = -0.9
-rew2 = -0.7
-rew3 = -0.5
-rew4 = -0.3
-rew5 = -0.1
+
+count_field = np.zeros((len(field), len(field)))
 
 # 사전에 정의된 최적 경로 5 목표지점, 6 에이전트 위치
 optimal_route = [[5, 2, 2, 2, 2, 1, 1, 1, 5],
                  [4, 2, 4, 2, 4, 1, 4, 1, 4],
                  [4, 4, 2, 4, 2, 4, 1, 4, 4],
                  [4, 2, 4, 2, 4, 1, 4, 1, 4],
-                 [4, 4, 2, 4, 3, 3, 1, 3, 3],
+                 [4, 4, 2, 4, 6, 3, 1, 3, 3],
                  [3, 2, 3, 2, 2, 1, 3, 1, 3],
                  [3, 3, 2, 3, 3, 3, 1, 3, 3],
                  [3, 2, 3, 2, 2, 1, 3, 1, 3],
                  [5, 2, 2, 2, 1, 1, 1, 1, 5]]
-
-# 각 필드별 보상 구조
-# field_rew = [[0, rew4, rew2, rew1, rew3, rew4, rew1, rew2, 0],
-#              [rew5, rew3, rew4, rew2, rew4, rew5, rew2, rew1, rew4],
-#              [rew2, rew5, rew5, rew3, rew1, rew2, rew3, rew2, rew5],
-#              [rew3, rew4, rew1, rew4, rew5, rew4, rew5, rew5, rew1],
-#              [rew4, rew1, rew3, rew5, -1, rew5, rew1, rew3, rew2],
-#              [rew1, rew2, rew5, rew2, rew2, rew3, rew4, rew1, rew3],
-#              [rew2, rew5, rew2, rew1, rew3, rew2, rew3, rew4, rew5],
-#              [rew3, rew2, rew3, rew3, rew4, rew1, rew5, rew5, rew2],
-#              [0, rew1, rew4, rew5, rew2, rew5, rew2, rew1, 0]]
-
-
-
 
 # 에이전트 클래스. 위치 초기화, 이동 함수
 class agent():
@@ -49,15 +32,15 @@ class agent():
         self.x = len(field) // 2
         self.y = len(field) // 2
 
-    def set(self):  # 첫번째 시도 이후, 에이전트 위치 초기화
-        field[self.y][self.x] = 1
+    def reset(self):  # 첫번째 시도 이후, 에이전트 위치 초기화
+        self.x = len(field) // 2
+        self.y = len(field) // 2
 
     def decision_move(self):
         move = optimal_route[self.y][self.x]
 
         # 30%의 확률로 사전에 정의된 최적경로를 이탈함
-        if random.random() < 0.3:
-            print('m이 변경됌')
+        if random.random() < 0.1:
             while True:
                 m_ = random.randint(1, 4)
                 # 랜덤하게 이동하게 하기 위해 기존의 방향과 다르게 하기 위해 반복
@@ -65,8 +48,8 @@ class agent():
                     move = m_
                     break
 
-        print('move_decision : ', move)
-        
+        if move == 6 :
+            move = random.randint(1, 4)
         return move
 
 
@@ -76,10 +59,6 @@ class agent():
         step = self.decision_move()
 
         # 동서남북 이동에 대한 구현
-
-        print('step : ', step)
-
-        field[self.y][self.x] = 3
 
         # 동쪽으로 이동
         if step == 1 :
@@ -101,20 +80,40 @@ class agent():
             if not ((self.y - 1) < 0):
                 self.y -= 1
 
-        field[self.y][self.x] = 1
+        # count_field[self.y][self.x] += 1
 
 
-ag = agent()
-print(ag.x, ag.y)
-for i in range(len(field)):
-    print(field[i])
+    # 에이전트가 골 지점에 도착할 경우
+    def check_finish(self) -> bool :
+        if field[self.y][self.x] == 2 :
+            return True
+        else :
+            return False
 
-for k in range(10):
-    print('--------------------------------------')
-    print((k + 1), '번째 실행')
-    ag.move()
-    print(ag.x, ag.y)
-    for i in range(len(field)):
-        print(field[i])
 
-# 보상이 높은 곳을 70%의 확률로 이동을 구현
+
+
+def main() :
+    ag = agent()
+
+    for i in range(1000) :
+        for _ in range(7) :
+            ag.move()
+
+
+
+        count_field[ag.y][ag.x] += 1
+
+        ag.reset()
+
+    # count_field[0][0] = 0
+    # count_field[0][len(count_field) - 1] = 0
+    # count_field[len(count_field) - 1][0] = 0
+    # count_field[len(count_field) - 1][len(count_field) - 1] = 0
+
+    count_field[len(count_field) // 2][len(count_field) // 2] = -1
+    print(count_field)
+
+
+
+main()
