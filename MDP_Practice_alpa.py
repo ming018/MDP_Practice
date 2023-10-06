@@ -96,7 +96,9 @@ class agent():
 def main() :
     ag = agent()
 
-    for i in range(1000) :
+    count = 100
+
+    for i in range(count) :
         for _ in range(7) :
             ag.move()
 
@@ -106,14 +108,14 @@ def main() :
 
         ag.reset()
 
-    # count_field[0][0] = 0
-    # count_field[0][len(count_field) - 1] = 0
-    # count_field[len(count_field) - 1][0] = 0
-    # count_field[len(count_field) - 1][len(count_field) - 1] = 0
+    # 각 상태를 % 형태로 변경
+    for i in range(len(count_field)) :
+        for k in range(len(count_field)) :
+            count_field[i][k] = count_field[i][k] / count * 100
+
 
     count_field[len(count_field) // 2][len(count_field) // 2] = -1
+
     print(count_field)
-
-
 
 main()
