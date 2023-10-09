@@ -92,7 +92,7 @@ class agent():
 def main():
     ag = agent()
 
-    count = 100
+    count = 5000
 
     for i in range(count):
         for _ in range(7):

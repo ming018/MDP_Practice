@@ -118,4 +118,6 @@ def main() :
 
     print(count_field)
 
-main()
+
+if __name__ == '__main__' :
+    main()
