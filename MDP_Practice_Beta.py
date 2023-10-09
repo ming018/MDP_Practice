@@ -1,5 +1,3 @@
-# 개선사항 1, 클린 코드 2, 벽이 가로 막혀진 경우 탈출 불가
-
 import random
 import numpy as np
 
@@ -42,12 +40,11 @@ for i in range(1, len(field) - 1) :
 
     walls = []
     wall = i + (i % 5)
+
     if wall >= len(field) :
         wall -= len(field)
     walls.append(wall)
-
     print(walls)
-
     # 벽이 있는 상태의 보상을 -15로 지정
     for k in range(len(field)) :
             # 각 상태별 보상 지정
@@ -95,7 +92,7 @@ class agent():
         choose = selecting.index(max(selecting)) + 1
 
         # 10%의 확률로 에이전트가 원하지 않는 곳으로 이동
-        if random.random() < 0.01:
+        if random.random() < 0.2:
             while True:
                 ran = random.randint(1, 4)
                 # 랜덤하게 이동하게 하기 위해 기존의 방향과 다르게 하기 위해 반복
@@ -115,23 +112,26 @@ class agent():
 
         # 북쪽으로 이동
         if step == 1 :
-            if not ((self.y - 1) < 0):
+            if not (field[self.y - 1][self.x] == 7):
                 self.y -= 1
 
         # 동쪽으로 이동
         elif step == 2 :
             if not ((self.x + 1) >= len(field)):
-                self.x += 1
+                if not(field[self.y][self.x + 1] == 7) :
+                    self.x += 1
 
         # 서쪽으로 이동
         elif step == 3 :
             if not ((self.x - 1) < 0):
-                self.x -= 1
+                if not(field[self.y][self.x - 1] == 7) :
+                    self.x -= 1
 
         # 남쪽으로 이동
         elif step == 4 :
             if not ((self.y + 1) >= len(field)):
-                self.y += 1
+                if not (field[self.y + 1][self.x]) :
+                    self.y += 1
 
 
     # 에이전트가 골 지점에 도착할 경우
@@ -152,7 +152,7 @@ def main() :
 
     ag = agent()
     for _ in range(count) :
-        for _ in range(13) :
+        for _ in range(12) :
             ag.move()
             if ag.check_finish() :
                 break
@@ -162,16 +162,22 @@ def main() :
     for i in range(len(field)) :
         array2 = []
         for k in range(len(field)) :
-            array2.append(round((int(count_field[i][k]) / count * 100), 2))
+            array2.append(round(count_field[i][k] / count * 100, 2))
 
         array.append(array2)
+    for i in array :
+        print(i)
+
+    print(count_field)
 
     print(field)
 
-    for i in range(len(array)) :
-        for k in range(len(array)) :
-            print(str(array[i][k]), end = ' ')
-        print()
+
+    print(array[7][7])
+    print(count_field[7][7])
 
 if __name__ == '__main__' :
     main()
+
+    # 개선사항 1, 클린 코드 2, 벽이 가로 막혀진 경우 탈출 불가
+
