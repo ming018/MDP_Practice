@@ -32,26 +32,38 @@ for i in range(len(field)) :
     field_rew[len(field) - 1][i] = -13
 
 for i in range(1, len(field) - 1) :
-    # 벽이 연속적으로 나타나지 않게 정의
+    # # 벽이 연속적으로 나타나지 않게 정의
+    # walls = []
+    # while len(walls) < 2:
+    #     wall = random.randint(0, 13)
+    #     if (wall + 1) in walls or (wall - 1) in walls :
+    #         continue
+    #     walls.append(wall)
+
     walls = []
-    while len(walls) < 2:
-        wall = random.randint(0, 13)
-        if (wall + 1) in walls or (wall - 1) in walls :
-            continue
-        walls.append(wall)
+    wall = i + (i % 5)
+    if wall >= len(field) :
+        wall -= len(field)
+    walls.append(wall)
+
+    print(walls)
 
     # 벽이 있는 상태의 보상을 -15로 지정
     for k in range(len(field)) :
-        if k in walls :
-            field_rew[i][k] = -15
-            continue
-        # 각 상태별 보상 지정
-        field_rew[i][k] = (-14) + (len(field) - i)
+            # 각 상태별 보상 지정
+            field_rew[i][k] = (-14) + (len(field) - i)
+
+    for k in walls :
+         field_rew[i][k] = -15
+
+    for k in walls:
+        field[i][k] = 7
+
 
 
 # 에이전트 클래스. 위치 초기화, 이동 함수
 class agent():
-    def __init__(self):  # 생성자, # 필드의 가장 아랫 부분중 랜덤한 위치에 에이전트 생성
+    def __init__(self):  # 생성자, # 필드의 가장 아랫 부분중 가운데 위치에 에이전트 생성
 
         self.x = len(field) // 2
         self.y = len(field) - 1
@@ -79,19 +91,15 @@ class agent():
             selecting.append(field_rew[self.y][self.x])
 
         selecting.append(-14) # 에이전트 하
-        print('selecting : ', selecting)
 
         choose = selecting.index(max(selecting)) + 1
-        print('choose : ', choose)
 
         # 10%의 확률로 에이전트가 원하지 않는 곳으로 이동
         if random.random() < 0.01:
             while True:
                 ran = random.randint(1, 4)
-                print(ran)
                 # 랜덤하게 이동하게 하기 위해 기존의 방향과 다르게 하기 위해 반복
                 if ran != choose:
-                    print('ran : ', ran)
                     choose = ran
                     break
 
@@ -140,26 +148,30 @@ class agent():
 def main() :
 
     array = []
-    array2 = []
+    count = 5000
 
     ag = agent()
-    print(ag.x, ag.y)
-    print(field)
-    print()
-    print(field_rew)
-
-    ag = agent()
-    for _ in range(1000) :
-        for i in range(13) :
-            print(i + 1, '번째 시행 ')
-            print(ag.y, ag.x)
+    for _ in range(count) :
+        for _ in range(13) :
             ag.move()
-
             if ag.check_finish() :
                 break
         count_field[ag.y][ag.x] += 1
         ag.reset()
-    print(count_field)
+
+    for i in range(len(field)) :
+        array2 = []
+        for k in range(len(field)) :
+            array2.append(round((int(count_field[i][k]) / count * 100), 2))
+
+        array.append(array2)
+
+    print(field)
+
+    for i in range(len(array)) :
+        for k in range(len(array)) :
+            print(str(array[i][k]), end = ' ')
+        print()
 
 if __name__ == '__main__' :
     main()
